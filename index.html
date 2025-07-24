@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="HySUP-F: Unifying Body Kinematics and Facial Expression for 3D Human Reconstruction">
+  <meta name="keywords" content="Expressive human pose estimation, SMPL-X, FLAME, 3-D reconstruction, optimization, hybrid models">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HySUP-F: Face-Enhanced Full-Body Reconstruction from a Single Image</title>
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</head>
+<body>
+
+  <section class="hero is-small">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-3 publication-title">HySUP-F: Unifying Body Kinematics and Facial Expression for 3D Human Reconstruction</h1>
+  
+            <div class="is-size-6 publication-authors">
+              <span class="author-block"><a>Le&nbsp;Cong&nbsp;Thuong</a><sup>1</sup></span>
+              <span class="author-block"><a>Quang&nbsp;Nguyen&nbsp;Viet</a><sup>1</sup></span>
+              <span class="author-block"><a>Hai-Chau&nbsp;Nguyen-Le</a><sup>1</sup></span>
+              <span class="author-block"><a>Thanh&nbsp;Ha&nbsp;Le</a><sup>1§</sup></span>
+            </div>
+  
+            <div class="is-size-7 publication-authors">
+              <span class="author-block"><sup>1</sup>Faculty of Information Technology, University of Engineering and Technology, Hanoi, Vietnam</span>
+              <span class="author-block"><sup>§</sup>Corresponding author: ltha@vnu.edu.vn</span>
+            </div>
+  
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="https://drive.google.com/file/d/1a0fVpy7FgWkjtdcCXO_uy9J-0tqk7sFo/view?usp=sharing" class="external-link button is-normal is-rounded is-dark" target="_blank">
+                  <span class="icon is-small"><i class="fas fa-file-pdf" style="color:white;"></i></span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://github.com/hysup-face-page/hysup-f" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon"><i class="fab fa-github"></i></span>
+                  <span>Code</span>
+                </a>
+              </span>
+            </div>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+            <p>
+              Current 3D human reconstruction faces a persistent trade-off: holistic SMPLX-based methods (e.g., SMPLer-X, SMPLest-X) effectively capture full-body kinematics but often produce weak facial expressions, while specialized FLAME-based reconstructors (e.g., SMIRK, TEASER) deliver high-fidelity facial details yet remain parametrically incompatible with full-body models. To address this challenge, we introduce <strong>HySUP-F</strong>, a lightweight optimization framework that operates as a post-processing step, enabling the outputs of FLAME-based facial models to be integrated with SMPLX-based body meshes, without requiring retraining or architectural modifications.
+            </p>
+            <p>
+              Our experiments show that this approach consistently reduces the Procrustes-Aligned Mean Per-Vertex Position Error (PA-MPVPE) by 2.6–3.3% across several state-of-the-art models. More importantly, this quantitative improvement leads to a noticeable qualitative enhancement in facial realism, especially around the mouth region. Overall, our framework helps mitigate the limitations of holistic body models by enhancing their facial expressiveness, resulting in more compelling and coherent 3D digital humans.
+            </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Problem Statement</h2>
+        <div class="content has-text-justified">
+            <p>
+              Current methods present a trade-off: holistic models like SMPL-X capture full-body motion but yield generic facial expressions, while specialized models like FLAME produce detailed faces but are incompatible with body kinematics. This image illustrates the core challenge of unifying these two domains.
+            </p>
+        </div>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <figure class="image">
+          <img src="./static/images/problem-statement.webp" alt="Diagram illustrating the problem of unifying detailed facial models with holistic body models.">
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column has-text-centered">
+        <h2 class="title is-3">Our Method</h2>
+      </div>
+    </div>
+    <div class="content has-text-justified">
+      <p>
+        Our method introduces a robust, two-stage optimization pipeline to transfer high-fidelity facial details from a specialized model (like FLAME) onto a holistic SMPL-X body. To prevent errors where a person's identity is altered to fit an expression, we deliberately decouple the process into two sequential steps: first optimizing for identity-defining shape, then for expression and pose.
+      </p>
+    </div>
+    <div class="columns is-vcentered has-text-centered" style="margin-top: 2rem; margin-bottom: 2rem;">
+        <div class="column">
+            <div class="box">
+                <span class="icon is-large has-text-info"><i class="fas fa-user fa-2x"></i></span>
+                <h4 class="title is-5" style="margin-top: 1rem;">1. Shape Optimization</h4>
+                <p>Isolates identity by fitting SMPL-X shape parameters ($\beta$) to the target face in a neutral T-pose.</p>
+            </div>
+        </div>
+        <div class="column is-1 has-text-centered">
+            <span class="icon is-large"><i class="fas fa-arrow-right"></i></span>
+        </div>
+        <div class="column">
+            <div class="box">
+                <span class="icon is-large has-text-warning"><i class="fas fa-smile fa-2x"></i></span>
+                <h4 class="title is-5" style="margin-top: 1rem;">2. Expression-Pose Optimization</h4>
+                <p>Transfers the expression by fitting facial pose ($\theta_{\mathcal{E}}$) and expression ($\psi$) parameters to the expressive target.</p>
+            </div>
+        </div>
+    </div>
+    <div class="content has-text-justified">
+      <p>
+          In both stages, we minimize the vertex-level discrepancy between corresponding facial regions. To ensure the error reflects only local geometric differences, not global transformations, we first align the vertex sets using the Umeyama algorithm. Regularization terms are also applied to ensure plausible facial shapes and expressions, governed by the loss functions $\mathcal{L}_{\text{shape}}$ and $\mathcal{L}_{\text{expr/pose}}$.
+      </p>
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column has-text-centered">
+        <h2 class="title is-3">Results and Analysis</h2>
+      </div>
+    </div>
+    <div class="columns is-centered">
+      <div class="column">
+        <h3 class="title is-4 has-text-centered">Qualitative Comparison</h3>
+        <p class="content has-text-justified">
+          As shown below, our fused meshes exhibit noticeably richer facial expressions and more accurate mouth shapes compared to the baseline body models. Our method successfully restores subtle features and realistic deformations in the mouth region, which is a key challenge for holistic models.
+        </p>
+        <div class="publication-video">
+          <figure class="image">
+            <img src="./static/images/qualitative_results.webp" alt="Visual comparison showing improved facial expression and mouth shapes from our method.">
+          </figure>
+        </div>
+      </div>
+    </div>
+    <div class="columns is-centered" style="margin-top: 2rem;">
+      <div class="column">
+        <h3 class="title is-4 has-text-centered">Quantitative Analysis (PA-MPVPE &darr;)</h3>
+        <div class="content has-text-justified">
+          <p>
+            On the EHF dataset, our method demonstrates a clear quantitative advantage. By integrating a specialized facial model, we reduce the PA-MPVPE (Procrustes-Aligned Mean Per-Vertex Position Error) by up to <strong>3.3% for SMPLest-X</strong> (from 4.78mm to 4.62mm) and by <strong>2.6% for SMPLer-X</strong> (from 5.07mm to 4.94mm).
+          </p>
+        </div>
+        <table class="table is-bordered is-striped is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Body Model</th>
+              <th>Configuration</th>
+              <th>PA-MPVPE (mm)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th rowspan="4" style="vertical-align: middle;">SMPLest-X</th>
+              <td>Baseline (no head)</td>
+              <td>4.78</td>
+            </tr>
+            <tr>
+              <td>+ EMICA</td>
+              <td>4.68</td>
+            </tr>
+            <tr>
+              <td>+ SMIRK</td>
+              <td><strong>4.62</strong></td>
+            </tr>
+            <tr>
+              <td>+ TEASER</td>
+              <td><strong>4.62</strong></td>
+            </tr>
+            <tr>
+              <th rowspan="4" style="vertical-align: middle;">SMPLer-X</th>
+              <td>Baseline (no head)</td>
+              <td>5.07</td>
+            </tr>
+            <tr>
+              <td>+ EMICA</td>
+              <td>4.98</td>
+            </tr>
+            <tr>
+              <td>+ SMIRK</td>
+              <td><strong>4.94</strong></td>
+            </tr>
+            <tr>
+              <td>+ TEASER</td>
+              <td><strong>4.94</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title has-text-centered">BibTeX</h2>
+    <pre><code>@inproceedings{hysupf2025,
+  author    = {Le Cong Thuong and Quang Nguyen Viet and Hai-Chau Nguyen-Le and Thanh Ha Le},
+  title     = {HySUP-F: Face-Enhanced Full-Body Reconstruction from a Single Image},
+  booktitle = {Proceedings of the 17th International Conference on Knowledge and Systems Engineering (KSE)},
+  year      = {2025}
+}</code></pre>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>This website is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
